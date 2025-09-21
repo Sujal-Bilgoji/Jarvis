@@ -8,22 +8,21 @@ import speech_recognition as sr
 import datetime
 import pywhatkit
 import webbrowser
-# import os
-# import sys
 import subprocess
 import random
-import urllib.parse
+
 
 
 engine=pyttsx3.init()
-# voices=engine.getProperty("voices")
 
+# If female voice needed, use these 3 lines
+# voices=engine.getProperty("voices")
 # for i, v in enumerate(voices):
 #     print(i, v.id, v.name)
 
 engine.setProperty("rate",200)
 engine.setProperty("volume",1.0)
-# engine.setProperty("voice", voices[1].id)
+# engine.setProperty("voice", voices[1].id) (code for female voice)
 
 
 
@@ -65,6 +64,7 @@ def tell_time():
 
 def open_website(site_name):
   # Opens the weebsite by name
+  # You can add more websites in your dict
   sites = {
         "google": "https://www.google.com",
         "youtube": "https://www.youtube.com",
@@ -98,8 +98,6 @@ def play_music(song_name):
       speak("Please tell me the song name to play.")
       return
    speak(f"Playing {song_name} on YouTube")
-  #  query=urllib.parse.quote(song_name)
-  #  webbrowser.open(f"https://www.youtube.com/results?search_query={query}")
    pywhatkit.playonyt(song_name)
 
    listening=False
@@ -115,13 +113,7 @@ apps = {
     }
 
 def open_app(app_name):
-    # Opens common apps by name
-    # apps = {
-    #     "notepad": "notepad.exe",
-    #     "chrome": "chrome.exe",
-    #     "vscode": "code",   # VS Code (if installed and in PATH)
-    #     "calculator": "calc.exe"
-    # }
+  
     app_key = app_name.lower().strip()
     path = apps.get(app_key)
 
@@ -160,10 +152,6 @@ if __name__=="__main__":
       if "time" in command:
         tell_time()
 
-      # elif command.startswith("open"):
-      #    site=command.replace("open ", "", 1).strip()
-      #    open_website(site)
-
       elif "open" in command:
         item=command.replace("open ", "", 1).strip().lower()
 
@@ -187,9 +175,5 @@ if __name__=="__main__":
 
       else:
         speak("Sorry i cant do that yet")
-
-      # elif item in apps:
-      #   open_app(item)
         
-        
-      
+     
