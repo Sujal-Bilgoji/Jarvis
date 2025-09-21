@@ -1,24 +1,28 @@
+import sys, os
+
+# Suppress comtypes/pyttsx3 callback errors in console
+sys.stderr = open(os.devnull, 'w')
+
 import pyttsx3
 import speech_recognition as sr
 import datetime
 import pywhatkit
 import webbrowser
-import os
-import sys
 import subprocess
 import random
-import urllib.parse
+
 
 
 engine=pyttsx3.init()
-# voices=engine.getProperty("voices")
 
+# If female voice needed, use these 3 lines
+# voices=engine.getProperty("voices")
 # for i, v in enumerate(voices):
 #     print(i, v.id, v.name)
 
 engine.setProperty("rate",200)
 engine.setProperty("volume",1.0)
-# engine.setProperty("voice", voices[1].id)
+# engine.setProperty("voice", voices[1].id) (code for female voice)
 
 
 
@@ -42,7 +46,7 @@ def take_command():
       print("Recognizing...")
       query=r.recognize_google(audio, language="en-in")
       print(f"You said: {query}")
-    except sr.UnkownValueError:
+    except sr.UnknownValueError:
       print("Sorry, I did not understand.")
       return "None"
     except sr.RequestError as e:
@@ -60,6 +64,7 @@ def tell_time():
 
 def open_website(site_name):
   # Opens the weebsite by name
+  # You can add more websites in your dict
   sites = {
         "google": "https://www.google.com",
         "youtube": "https://www.youtube.com",
@@ -93,19 +98,22 @@ def play_music(song_name):
       speak("Please tell me the song name to play.")
       return
    speak(f"Playing {song_name} on YouTube")
-  #  query=urllib.parse.quote(song_name)
-  #  webbrowser.open(f"https://www.youtube.com/results?search_query={query}")
    pywhatkit.playonyt(song_name)
 
+   listening=False
+   speak("Iam now paused. Say 'Jarvis listen when you want me to listen again")
 
-   def app(app_name):
-    # Opens common apps by name
-    apps = {
+
+
+apps = {
         "notepad": "notepad.exe",
         "chrome": "chrome.exe",
         "vscode": "code",   # VS Code (if installed and in PATH)
         "calculator": "calc.exe"
     }
+
+def open_app(app_name):
+  
     app_key = app_name.lower().strip()
     path = apps.get(app_key)
 
@@ -125,29 +133,47 @@ def play_music(song_name):
 if __name__=="__main__":
   speak("Hello Sujal, Iam Jarvis.")
 
-  command=take_command()
+  listening=True
 
-  if command!="None":
+  while True:
+    command=take_command()
+
+    if command=="None":
+      continue
+    command=command.lower().strip()
     speak(f"You said {command}")
 
-  if "time" in command:
-     tell_time()
-
-  elif command.startswith("open"):
-     site=command.replace("open ", "", 1).strip()
-     open_website(site)
-  
-  elif "search" in command:
-            # remove word 'search' and possible word 'for'
-            query = command.replace("search", "").replace("for", "").strip()
-            search_web(query)
-
-  elif "play music" in command or "play song" in command or "play some music" in command or "play" in command:
-     song=command.replace("play", "", 1).strip()
-     play_music(song)
-
-  elif "open" in command:
-    app()
-     
+    if "jarvis listen" in command:
+      
+       speak("I am listening now")
+       continue
     
-  
+    if listening:
+      if "time" in command:
+        tell_time()
+
+      elif "open" in command:
+        item=command.replace("open ", "", 1).strip().lower()
+
+        if item in apps:
+            open_app(item)
+        else:
+            open_website(item)
+      
+      elif "search" in command:
+                # remove word 'search' and possible word 'for'
+                query = command.replace("search", "").replace("for", "").strip()
+                search_web(query)
+
+      elif "play music" in command or "play song" in command or "play some music" in command or "play" in command:
+        song=command.replace("play", "", 1).strip()
+        play_music(song)
+
+      elif any(word in command for word in ["exit", "quit", "bye", "stop","shutdown"]):
+        speak("Jarvis shutting down.")
+        break
+
+      else:
+        speak("Sorry i cant do that yet")
+        
+     
